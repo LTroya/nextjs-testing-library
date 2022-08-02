@@ -11,8 +11,10 @@ export default function Home() {
     axios.get("/api/tasks").then((response) => setTask(response.data));
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    await axios.post("/api/tasks", { text });
 
     setTask([...tasks, { id: tasks.length + 1, text, done: false }]);
     setText("");
