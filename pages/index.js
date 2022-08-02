@@ -1,18 +1,20 @@
+import axios from "axios";
 import Head from "next/head";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import DeleteIcon from "../components/DeleteIcon";
 
 export default function Home() {
   const [text, setText] = useState("");
-  const [tasks, setTask] = useState([
-    { id: 1, text: "Learn typescript", done: false },
-    { id: 2, text: "Learn Next.js", done: true },
-  ]);
+  const [tasks, setTask] = useState([]);
+
+  useEffect(() => {
+    axios.get("/api/tasks").then((response) => setTask(response.data));
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     setTask([...tasks, { id: tasks.length + 1, text, done: false }]);
-
     setText("");
   };
 
@@ -20,6 +22,10 @@ export default function Home() {
     setTask(
       tasks.map((t) => (t.id === task.id ? { ...t, done: !task.done } : t))
     );
+  };
+
+  const handleRemove = (task) => {
+    setTask(tasks.filter((t) => t.id !== task.id));
   };
 
   return (
@@ -60,14 +66,26 @@ export default function Home() {
 
           <div className="flex flex-col mt-4">
             {tasks.map((task, index) => (
-              <div data-testid="item" key={task.text} className="my-2 text-xl">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-6 w-6 rounded text-gray-400 mr-2"
-                  checked={task.done}
-                  onChange={() => handleCheck(task)}
-                />
-                {task.text}
+              <div
+                data-testid="item"
+                key={task.text}
+                className="flex my-2 text-xl"
+              >
+                <div className="flex-1">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox h-6 w-6 rounded text-gray-400 mr-2"
+                    checked={task.done}
+                    onChange={() => handleCheck(task)}
+                  />
+                  {task.text}
+                </div>
+                <button
+                  data-testid="remove-item"
+                  onClick={() => handleRemove(task)}
+                >
+                  <DeleteIcon />
+                </button>
               </div>
             ))}
           </div>
